@@ -1,0 +1,12 @@
+{
+  "coverage": "100%",
+  "expectCount": 16,
+  "actualCount": 16,
+  "files": {
+    "src/lib/shiori_converter.js": {
+      "expectCount": 16,
+      "actualCount": 16,
+      "undocumentLines": []
+    }
+  }
+}

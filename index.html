@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl">
+  <title data-ice="title">API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <a data-ice="repoURL" href="https://github.com/Narazaka/shiori_converter.js.git" class="repo-url-github">Repository</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">lib</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/lib/shiori_converter.js~ShioriConverter.html">ShioriConverter</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><h1 id="-shiori_converter-https-github-com-narazaka-shiori_converter-js-"><a href="https://github.com/Narazaka/shiori_converter.js">shiori_converter</a></h1>
+<p><a href="https://www.npmjs.com/package/shiori_converter"><img src="https://img.shields.io/npm/v/shiori_converter.svg" alt="npm"></a>
+<a href="https://www.npmjs.com/package/shiori_converter"><img src="https://img.shields.io/npm/l/shiori_converter.svg" alt="npm license"></a>
+<a href="https://www.npmjs.com/package/shiori_converter"><img src="https://img.shields.io/npm/dt/shiori_converter.svg" alt="npm download total"></a>
+<a href="https://www.npmjs.com/package/shiori_converter"><img src="https://img.shields.io/npm/dm/shiori_converter.svg" alt="npm download by month"></a>
+<a href="https://github.com/Narazaka/shiori_converter.js"><img src="https://img.shields.io/bower/v/shiori_converter.svg" alt="Bower"></a>
+<a href="https://github.com/Narazaka/shiori_converter.js"><img src="https://img.shields.io/bower/l/shiori_converter.svg" alt="Bower"></a></p>
+<p><a href="https://david-dm.org/Narazaka/shiori_converter.js"><img src="https://david-dm.org/Narazaka/shiori_converter.js.svg" alt="Dependency Status"></a>
+<a href="https://david-dm.org/Narazaka/shiori_converter.js#info=devDependencies"><img src="https://david-dm.org/Narazaka/shiori_converter.js/dev-status.svg" alt="devDependency Status"></a>
+<a href="https://travis-ci.org/Narazaka/shiori_converter.js"><img src="https://travis-ci.org/Narazaka/shiori_converter.js.svg" alt="Build Status"></a>
+<a href="https://codecov.io/github/Narazaka/shiori_converter.js?branch=master"><img src="https://codecov.io/github/Narazaka/shiori_converter.js/coverage.svg?branch=master" alt="codecov.io"></a>
+<a href="https://codeclimate.com/github/Narazaka/shiori_converter.js"><img src="https://codeclimate.com/github/Narazaka/shiori_converter.js/badges/gpa.svg" alt="Code Climate"></a></p>
+<p>SHIORI Protocol version converter</p>
+<h2 id="install">Install</h2>
+<p>npm:</p>
+<pre><code><code class="source-code prettyprint">npm install shiori_converter</code>
+</code></pre><p>bower:</p>
+<pre><code><code class="source-code prettyprint">bower install shiori_converter</code>
+</code></pre><p>This module depends on <a href="https://github.com/Narazaka/shiorijk">ShioriJK</a></p>
+<h2 id="usage">Usage</h2>
+<p>node.js:</p>
+<pre><code class="lang-javascript"><code class="source-code prettyprint">var shiori_converter = require(&apos;shiori_converter&apos;);
+var ShioriConverter = shiori_converter.ShioriConverter;</code>
+</code></pre>
+<p>browser:</p>
+<pre><code class="lang-html"><code class="source-code prettyprint">&lt;script src=&quot;shiorijk.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;shiori_converter.js&quot;&gt;&lt;/script&gt;</code>
+</code></pre>
+<pre><code class="lang-javascript"><code class="source-code prettyprint">var request3 = new ShioriJK.Message.Request({
+  request_line: {
+    method: &apos;GET&apos;,
+    version: &apos;3.0&apos;,
+  },
+  headers: {
+    ID: &apos;OnBoot&apos;,
+    Charset: &apos;UTF-8&apos;,
+    Sender: &apos;Ikagaka&apos;,
+  },
+});
+var request2 = ShioriConverter.request_to(request3, &apos;2.6&apos;);
+console.log(request2.toString());
+
+var response2 = new ShioriJK.Message.Response({
+  status_line: {
+    code: 200,
+    version: &apos;2.6&apos;,
+  },
+  headers: {
+    Sentence: &apos;\\h\\s[0]\\e&apos;,
+    Charset: &apos;UTF-8&apos;,
+    Sender: &apos;ikaga&apos;,
+  },
+});
+var response3 = ShioriConverter.response_to(request3, response2, &apos;3.0&apos;);
+console.log(response3.toString());</code>
+</code></pre>
+<h2 id="api">API</h2>
+<p><a href="https://narazaka.github.io/shiori_converter.js/index.html">API Document</a></p>
+<h2 id="license">License</h2>
+<p>This is released under <a href="http://narazaka.net/license/MIT?2015">MIT License</a>.</p>
+</div>
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.4.3)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

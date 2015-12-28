@@ -1,0 +1,1388 @@
+[
+  {
+    "__docId__": 0,
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/lib/shiori_converter.js",
+    "memberof": null,
+    "longname": "src/lib/shiori_converter.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1,
+    "content": "'use strict';\n\nif (typeof require !== 'undefined') {\n  var ShioriJK = require('shiorijk');\n}\n\n/**\n * SHIORI/2.x/3.x/4.x Converter\n */\nclass ShioriConverter {\n  /**\n   * convert request to specified version\n   * @param {ShioriJK.Message.Request} request - request\n   * @param {string} version - protocol version\n   * @return {ShioriJK.Message.Request} specified version request\n   */\n  static request_to(request, version) {\n    if (!request) throw new ShioriConverter.RequestNotSetError();\n    if (request.request_line.version === '4.0') {\n      if (version === '4.0') {\n        return request;\n      } else if (version === '3.0') {\n        return ShioriConverter.request_4to3(request);\n      } else {\n        return ShioriConverter.request_4to2(request);\n      }\n    } else if (request.request_line.version === '3.0') {\n      if (version === '4.0') {\n        return ShioriConverter.request_3to4(request);\n      } else if (version === '3.0') {\n        return request;\n      } else {\n        return ShioriConverter.request_3to2(request);\n      }\n    } else {\n      if (version === '4.0') {\n        return ShioriConverter.request_2to4(request);\n      } else if (version === '3.0') {\n        return ShioriConverter.request_2to3(request);\n      } else {\n        return request;\n      }\n    }\n  }\n\n  /**\n   * convert response to specified version\n   * @param {ShioriJK.Message.Request} request - request\n   * @param {ShioriJK.Message.Response} response - response\n   * @param {string} version - protocol version\n   * @return {ShioriJK.Message.Response} specified version response\n   */\n  static response_to(request, response, version) {\n    if (!request) throw new ShioriConverter.RequestNotSetError();\n    if (!response) throw new ShioriConverter.ResponseNotSetError();\n    if (response.status_line.version === '4.0') {\n      if (version === '4.0') {\n        return response;\n      } else if (version === '3.0') {\n        return ShioriConverter.response_4to3(request, response);\n      } else {\n        return ShioriConverter.response_4to2(request, response);\n      }\n    } else if (response.status_line.version === '3.0') {\n      if (version === '4.0') {\n        return ShioriConverter.response_3to4(request, response);\n      } else if (version === '3.0') {\n        return response;\n      } else {\n        return ShioriConverter.response_3to2(request, response);\n      }\n    } else {\n      if (version === '4.0') {\n        return ShioriConverter.response_2to4(request, response);\n      } else if (version === '3.0') {\n        return ShioriConverter.response_2to3(request, response);\n      } else {\n        return response;\n      }\n    }\n  }\n\n  /**\n   * convert SHIORI/4.x request to SHIORI/3.x\n   * @param {ShioriJK.Message.Request} request - request\n   * @return {ShioriJK.Message.Request} SHIORI/3.x request\n   */\n  static request_4to3(request) {\n    throw new ShioriConverter.NotImplementedError();\n  }\n\n  /**\n   * convert SHIORI/4.x request to SHIORI/2.x\n   * @param {ShioriJK.Message.Request} request - request\n   * @return {ShioriJK.Message.Request} SHIORI/2.x request\n   */\n  static request_4to2(request) {\n    return ShioriConverter.request_3to2(\n      ShioriConverter.request_4to3(request)\n    );\n  }\n\n  /**\n   * SHIORI/3.x request method to SHIORI/2.x request method\n   * @param {ShioriJK.Message.Request} request - request\n   * @return {string} method\n   */\n  static method3to2(request) {\n    const id = request.headers.header.ID;\n    if (id === 'version') {\n      return 'GET Version';\n    } else if (id === 'OnTeach') {\n      return 'TEACH';\n    } else if (id === 'ownerghostname') {\n      return 'NOTIFY OwnerGhostName';\n    } else if (id === 'otherghostname') {\n      return 'NOTIFY OtherGhostName';\n    } else if (request.request_line.method === 'NOTIFY') {\n      return; // No SHIORI 2.x Event\n    } else if (id.match(/^[a-z]/)) {\n      return 'GET String'; // default SHIORI/2.5\n    } else {\n      return 'GET Sentence'; // default SHIORI/2.2\n    }\n  }\n\n  /**\n   * convert SHIORI/3.x request to SHIORI/2.x\n   * @param {ShioriJK.Message.Request} request - request\n   * @return {ShioriJK.Message.Request} SHIORI/2.x request\n   */\n  static request_3to2(request) {\n    /*\n    SHIORI/2.x互換変換\n    - GET : Sentence : OnCommunicate はGET Sentence SHIORI/2.3に変換され、ヘッダの位置が変更されます。\n    - GET : TEACH : OnTeach はTEACH SHIORI/2.4に変換され、ヘッダの位置が変更されます。\n    */\n    const method = ShioriConverter.method3to2(request);\n    if (!method) {\n      return; // No SHIORI 2.x Event\n    }\n    const id = request.headers.header.ID;\n\n    const headers = new ShioriJK.Headers.Request();\n    const conv_request = new ShioriJK.Message.Request({\n      request_line: new ShioriJK.RequestLine({\n        method: method,\n        protocol: request.protocol,\n        version: '2.6',\n      }),\n      headers: headers,\n    });\n\n    if (method === 'GET Sentence' && id != null) {\n      if (id === 'OnCommunicate') { // SHIORI/2.3b\n        headers.header['Sender'] = request.headers.header['Reference0'];\n        headers.header['Sentence'] = request.headers.header['Reference1'];\n        headers.header['Age'] = request.headers.header.Age || '0';\n        // ref0,1のためにヘッダをずらす\n        for (const name in request.headers.header) {\n          const value = request.headers.header[name];\n          let result;\n          if (result = name.match(/^Reference(\\d+)$/)) {\n            headers.header['Reference' + (result[1] - 2)] = '' + value;\n          } else {\n            headers.header[name] = '' + value;\n          }\n        }\n        return conv_request;\n      } else { // SHIORI/2.2\n        headers.header['Event'] = id;\n      }\n    } else if (method === 'GET String' && id != null) { // SHIORI/2.5\n      headers.header['ID'] = id;\n    } else if (method === 'TEACH') { // SHIORI/2.4\n      headers.header['Word'] = request.headers.header['Reference0'];\n      // ref0のためにヘッダをずらす\n      for (const name in request.headers.header) {\n        const value = request.headers.header[name];\n        let result;\n        if (result = name.match(/^Reference(\\d+)$/)) {\n          headers.header['Reference' + (result[1] - 1)] = '' + value;\n        } else {\n          headers.header[name] = '' + value;\n        }\n      }\n      return conv_request;\n    } else if (method === 'NOTIFY OwnerGhostName') { // SHIORI/2.0 NOTIFY\n      headers.header['Ghost'] = request.headers.header['Reference0'];\n      return conv_request;\n    } else if (method === 'NOTIFY OtherGhostName') { // SHIORI/2.3 NOTIFY\n      const ghosts = [];\n      for (const name in request.headers.header) {\n        const value = request.headers.header[name];\n        if (name.match(/^Reference\\d+$/)) {\n          ghosts.push('' + value);\n        } else {\n          headers.header[name] = '' + value;\n        }\n      }\n      const ghosts_headers = ghosts\n        .map((ghost) => `GhostEx: ${ghost}\\r\\n`)\n        .join('');\n      // ShioriJK.Headersが同一名複数ヘッダに対応していないため\n      return conv_request.request_line\n        + '\\r\\n'\n        + conv_request.headers\n        + ghosts_headers\n        + '\\r\\n';\n    } else {\n      return;\n    }\n    for (const name in request.headers.header) {\n      if (name === 'ID') continue;\n      const value = request.headers.header[name];\n      headers.header[name] = '' + value;\n    }\n    return conv_request;\n  }\n\n  /**\n   * convert SHIORI/2.x request to SHIORI/3.x\n   * @param {ShioriJK.Message.Request} request - request\n   * @return {ShioriJK.Message.Request} SHIORI/3.x request\n   */\n  static request_2to3(request) {\n    throw new ShioriConverter.NotImplementedError();\n  }\n\n  /**\n   * convert SHIORI/3.x request to SHIORI/4.x\n   * @param {ShioriJK.Message.Request} request - request\n   * @return {ShioriJK.Message.Request} SHIORI/4.x request\n   */\n  static request_3to4(request) {\n    throw new ShioriConverter.NotImplementedError();\n  }\n\n  /**\n   * convert SHIORI/2.x request to SHIORI/4.x\n   * @param {ShioriJK.Message.Request} request - request\n   * @return {ShioriJK.Message.Request} SHIORI/4.x request\n   */\n  static request_2to4(request) {\n    return ShioriConverter.request_3to4(\n      ShioriConverter.request_2to3(request)\n    );\n  }\n\n  /**\n   * convert SHIORI/4.x response to SHIORI/3.x\n   * @param {ShioriJK.Message.Request} request - request\n   * @param {ShioriJK.Message.Response} response - response\n   * @return {ShioriJK.Message.Response} SHIORI/3.x response\n   */\n  static response_4to3(request, response) {\n    throw new ShioriConverter.NotImplementedError();\n  }\n\n  /**\n   * convert SHIORI/4.x response to SHIORI/2.x\n   * @param {ShioriJK.Message.Request} request - request\n   * @param {ShioriJK.Message.Response} response - response\n   * @return {ShioriJK.Message.Response} SHIORI/2.x response\n   */\n  static response_4to2(request, response) {\n    return ShioriConverter.response_3to2(\n      ShioriConverter.response_4to3(request, response)\n    );\n  }\n\n  /**\n   * convert SHIORI/3.x response to SHIORI/2.x\n   * @param {ShioriJK.Message.Request} request - request\n   * @param {ShioriJK.Message.Response} response - response\n   * @return {ShioriJK.Message.Response} SHIORI/2.x response\n   */\n  static response_3to2(request, response) {\n    throw new ShioriConverter.NotImplementedError();\n  }\n\n  /**\n   * convert SHIORI/2.x response to SHIORI/3.x\n   * @param {ShioriJK.Message.Request} request - request\n   * @param {ShioriJK.Message.Response} response - response\n   * @return {ShioriJK.Message.Response} SHIORI/3.x response\n   */\n  static response_2to3(request, response) {\n    const conv_request = ShioriConverter.request_to(request, '2.6');\n    let value_name;\n    switch (conv_request.request_line.method) {\n      case 'GET String':\n        value_name = 'String';\n        break;\n      case 'GET Word':\n        value_name = 'Word';\n        break;\n      case 'GET Status':\n        value_name = 'Status';\n        break;\n      default:\n        value_name = 'Sentence';\n        break;\n    }\n    const headers = new ShioriJK.Headers.Response();\n    if (response.headers.header[value_name] != null) {\n      headers.header.Value = response.headers.header[value_name];\n    }\n    for (const name in response.headers.header) {\n      const value = response.headers.header[name];\n      // for Communicate\n      let result;\n      if (result = name.match(/^Reference(\\d+)$/)) {\n        headers.header[`Reference${result[1] + 1}`] = value;\n      } else if (name === 'To') {\n        headers.header.Reference0 = value;\n      } else if (name !== value_name) {\n        headers.header[name] = value;\n      }\n    }\n    return new ShioriJK.Message.Response({\n      status_line: new ShioriJK.StatusLine({\n        code: response.status_line.code,\n        protocol: response.status_line.protocol,\n        version: '3.0',\n      }),\n      headers: headers,\n    });\n  }\n\n  /**\n   * convert SHIORI/3.x response to SHIORI/4.x\n   * @param {ShioriJK.Message.Request} request - request\n   * @param {ShioriJK.Message.Response} response - response\n   * @return {ShioriJK.Message.Response} SHIORI/4.x response\n   */\n  static response_3to4(request, response) {\n    throw new ShioriConverter.NotImplementedError();\n  }\n\n  /**\n   * convert SHIORI/2.x response to SHIORI/4.x\n   * @param {ShioriJK.Message.Request} request - request\n   * @param {ShioriJK.Message.Response} response - response\n   * @return {ShioriJK.Message.Response} SHIORI/4.x response\n   */\n  static response_2to4(request, response) {\n    return ShioriConverter.response_3to4(\n      ShioriConverter.response_2to3(request, response)\n    );\n  }\n}\n\n/**\n * Request not found error\n */\nShioriConverter.RequestNotSetError = class RequestNotSetError extends Error {\n};\n\n/**\n * Response not found error\n */\nShioriConverter.ResponseNotSetError = class ResponseNotSetError extends Error {\n};\n\n/**\n * Sorry, not implemented!\n */\nShioriConverter.NotImplementedError = class NotImplementedError extends Error {\n};\n\nexport {ShioriConverter};\n"
+  },
+  {
+    "__docId__": 1,
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "RequestNotSetError",
+    "memberof": "src/lib/shiori_converter.js",
+    "longname": "src/lib/shiori_converter.js~RequestNotSetError",
+    "access": null,
+    "export": false,
+    "importPath": "shiori_converter/src/lib/shiori_converter.js",
+    "importStyle": null,
+    "description": "Request not found error",
+    "lineNumber": 357,
+    "interface": false,
+    "extends": [
+      "Error"
+    ]
+  },
+  {
+    "__docId__": 2,
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "ResponseNotSetError",
+    "memberof": "src/lib/shiori_converter.js",
+    "longname": "src/lib/shiori_converter.js~ResponseNotSetError",
+    "access": null,
+    "export": false,
+    "importPath": "shiori_converter/src/lib/shiori_converter.js",
+    "importStyle": null,
+    "description": "Response not found error",
+    "lineNumber": 363,
+    "interface": false,
+    "extends": [
+      "Error"
+    ]
+  },
+  {
+    "__docId__": 3,
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "NotImplementedError",
+    "memberof": "src/lib/shiori_converter.js",
+    "longname": "src/lib/shiori_converter.js~NotImplementedError",
+    "access": null,
+    "export": false,
+    "importPath": "shiori_converter/src/lib/shiori_converter.js",
+    "importStyle": null,
+    "description": "Sorry, not implemented!",
+    "lineNumber": 369,
+    "interface": false,
+    "extends": [
+      "Error"
+    ]
+  },
+  {
+    "__docId__": 4,
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "ShioriConverter",
+    "memberof": "src/lib/shiori_converter.js",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter",
+    "access": null,
+    "export": true,
+    "importPath": "shiori_converter/src/lib/shiori_converter.js",
+    "importStyle": "{ShioriConverter}",
+    "description": "SHIORI/2.x/3.x/4.x Converter",
+    "lineNumber": 10,
+    "interface": false
+  },
+  {
+    "__docId__": 5,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "request_to",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.request_to",
+    "access": null,
+    "description": "convert request to specified version",
+    "lineNumber": 17,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "version",
+        "description": "protocol version"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Request"
+      ],
+      "spread": false,
+      "description": "specified version request"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 6,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "response_to",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.response_to",
+    "access": null,
+    "description": "convert response to specified version",
+    "lineNumber": 53,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Response"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "response",
+        "description": "response"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "version",
+        "description": "protocol version"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Response"
+      ],
+      "spread": false,
+      "description": "specified version response"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 7,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "request_4to3",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.request_4to3",
+    "access": null,
+    "description": "convert SHIORI/4.x request to SHIORI/3.x",
+    "lineNumber": 88,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Request"
+      ],
+      "spread": false,
+      "description": "SHIORI/3.x request"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 8,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "request_4to2",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.request_4to2",
+    "access": null,
+    "description": "convert SHIORI/4.x request to SHIORI/2.x",
+    "lineNumber": 97,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Request"
+      ],
+      "spread": false,
+      "description": "SHIORI/2.x request"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 9,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "method3to2",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.method3to2",
+    "access": null,
+    "description": "SHIORI/3.x request method to SHIORI/2.x request method",
+    "lineNumber": 108,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "string"
+      ],
+      "spread": false,
+      "description": "method"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 10,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "request_3to2",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.request_3to2",
+    "access": null,
+    "description": "convert SHIORI/3.x request to SHIORI/2.x",
+    "lineNumber": 132,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Request"
+      ],
+      "spread": false,
+      "description": "SHIORI/2.x request"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 11,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "request_2to3",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.request_2to3",
+    "access": null,
+    "description": "convert SHIORI/2.x request to SHIORI/3.x",
+    "lineNumber": 226,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Request"
+      ],
+      "spread": false,
+      "description": "SHIORI/3.x request"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 12,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "request_3to4",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.request_3to4",
+    "access": null,
+    "description": "convert SHIORI/3.x request to SHIORI/4.x",
+    "lineNumber": 235,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Request"
+      ],
+      "spread": false,
+      "description": "SHIORI/4.x request"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 13,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "request_2to4",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.request_2to4",
+    "access": null,
+    "description": "convert SHIORI/2.x request to SHIORI/4.x",
+    "lineNumber": 244,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Request"
+      ],
+      "spread": false,
+      "description": "SHIORI/4.x request"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 14,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "response_4to3",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.response_4to3",
+    "access": null,
+    "description": "convert SHIORI/4.x response to SHIORI/3.x",
+    "lineNumber": 256,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Response"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "response",
+        "description": "response"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Response"
+      ],
+      "spread": false,
+      "description": "SHIORI/3.x response"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 15,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "response_4to2",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.response_4to2",
+    "access": null,
+    "description": "convert SHIORI/4.x response to SHIORI/2.x",
+    "lineNumber": 266,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Response"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "response",
+        "description": "response"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Response"
+      ],
+      "spread": false,
+      "description": "SHIORI/2.x response"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 16,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "response_3to2",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.response_3to2",
+    "access": null,
+    "description": "convert SHIORI/3.x response to SHIORI/2.x",
+    "lineNumber": 278,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Response"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "response",
+        "description": "response"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Response"
+      ],
+      "spread": false,
+      "description": "SHIORI/2.x response"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 17,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "response_2to3",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.response_2to3",
+    "access": null,
+    "description": "convert SHIORI/2.x response to SHIORI/3.x",
+    "lineNumber": 288,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Response"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "response",
+        "description": "response"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Response"
+      ],
+      "spread": false,
+      "description": "SHIORI/3.x response"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 18,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "response_3to4",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.response_3to4",
+    "access": null,
+    "description": "convert SHIORI/3.x response to SHIORI/4.x",
+    "lineNumber": 337,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Response"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "response",
+        "description": "response"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Response"
+      ],
+      "spread": false,
+      "description": "SHIORI/4.x response"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 19,
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "response_2to4",
+    "memberof": "src/lib/shiori_converter.js~ShioriConverter",
+    "longname": "src/lib/shiori_converter.js~ShioriConverter.response_2to4",
+    "access": null,
+    "description": "convert SHIORI/2.x response to SHIORI/4.x",
+    "lineNumber": 347,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Request"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "request",
+        "description": "request"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "ShioriJK.Message.Response"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "response",
+        "description": "response"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ShioriJK.Message.Response"
+      ],
+      "spread": false,
+      "description": "SHIORI/4.x response"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 21,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Infinity",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Infinity",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 22,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "NaN",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~NaN",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 23,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "undefined",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~undefined",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 24,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "null",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~null",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 25,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Object",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 26,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~object",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 27,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Function",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 28,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~function",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 29,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Boolean",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 30,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~boolean",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 31,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Symbol",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Symbol",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 32,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Error",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Error",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 33,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "EvalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/EvalError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~EvalError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 34,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "InternalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/InternalError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~InternalError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 35,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "RangeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~RangeError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 36,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "ReferenceError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~ReferenceError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 37,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "SyntaxError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~SyntaxError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 38,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "TypeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~TypeError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 39,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "URIError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~URIError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 40,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Number",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 41,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~number",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 42,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Date",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Date",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 43,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "String",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~String",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 44,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "string",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~string",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 45,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "RegExp",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~RegExp",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 46,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 47,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Int8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int8Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int8Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 48,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint8Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 49,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint8ClampedArray",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint8ClampedArray",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 50,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Int16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int16Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int16Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 51,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint16Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint16Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 52,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Int32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int32Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 53,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint32Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 54,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Float32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Float32Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 55,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Float64Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float64Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Float64Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 56,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Map",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Map",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 57,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Set",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Set",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 58,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "WeakMap",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~WeakMap",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 59,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "WeakSet",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~WeakSet",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 60,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "ArrayBuffer",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~ArrayBuffer",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 61,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "DataView",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~DataView",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 62,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "JSON",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~JSON",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 63,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Promise",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Promise",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 64,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Generator",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Generator",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 65,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "GeneratorFunction",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GeneratorFunction",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~GeneratorFunction",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 66,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Reflect",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Reflect",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 67,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Proxy",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Proxy",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 69,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "CanvasRenderingContext2D",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~CanvasRenderingContext2D",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 70,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "DocumentFragment",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~DocumentFragment",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 71,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Element",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Element",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~Element",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 72,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Event",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Event",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~Event",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 73,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Node",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Node",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~Node",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 74,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "NodeList",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/NodeList",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~NodeList",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 75,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "XMLHttpRequest",
+    "externalLink": "https://developer.mozilla.org/en/docs/Web/API/XMLHttpRequest",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~XMLHttpRequest",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 76,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "AudioContext",
+    "externalLink": "https://developer.mozilla.org/en/docs/Web/API/AudioContext",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~AudioContext",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  }
+]
