@@ -1,4 +1,4 @@
-# [shiori_converter](https://github.com/Narazaka/shiori_converter.js)
+# [shiori_converter.js](https://github.com/Narazaka/shiori_converter.js)
 
 [![npm](https://img.shields.io/npm/v/shiori_converter.svg)](https://www.npmjs.com/package/shiori_converter)
 [![npm license](https://img.shields.io/npm/l/shiori_converter.svg)](https://www.npmjs.com/package/shiori_converter)

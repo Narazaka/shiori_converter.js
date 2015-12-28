@@ -5,9 +5,9 @@ module.exports = (config) =>
     files: [
       'mock/browser-global-vars.js',
       'node_modules/power-assert/build/power-assert.js',
+      'node_modules/shiorijk/lib/*.js',
       'src/**/*.js',
       'test/**/*.js',
-      'node_modules/shiorijk/lib/*.js',
     ],
     exclude: ['**/*.swp'],
     preprocessors: {
