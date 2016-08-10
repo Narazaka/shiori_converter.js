@@ -151,7 +151,9 @@ class ShioriConverter {
       headers: headers,
     });
 
-    if (method === 'GET Sentence' && id != null) {
+    if (method === 'GET Version') {
+      // do nothing
+    } else if (method === 'GET Sentence' && id != null) {
       if (id === 'OnCommunicate') { // SHIORI/2.3b
         headers.header['Sender'] = request.headers.header['Reference0'];
         headers.header['Sentence'] = request.headers.header['Reference1'];
