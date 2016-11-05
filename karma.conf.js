@@ -3,20 +3,7 @@ const webpackConfig = require("webpack-config-narazaka-ts-js").webTest;
 module.exports = (config) =>
   config.set({
     frameworks: ["detectBrowsers", "mocha"],
-    plugins:    [
-      "karma-mocha",
-      "karma-webpack",
-      "karma-mocha-own-reporter",
-      "karma-ie-launcher",
-      "karma-firefox-launcher",
-      "karma-chrome-launcher",
-      "karma-safari-launcher",
-      "karma-opera-launcher",
-      "karma-phantomjs-launcher",
-      "karma-detect-browsers",
-      "karma-coverage",
-    ],
-    files: [
+    files:      [
       "test/**/*.js",
       "test/**/*.ts",
     ],
