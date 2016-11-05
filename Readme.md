@@ -7,7 +7,8 @@
 
 [![Dependency Status](https://david-dm.org/Narazaka/shiori_converter.js.svg)](https://david-dm.org/Narazaka/shiori_converter.js)
 [![devDependency Status](https://david-dm.org/Narazaka/shiori_converter.js/dev-status.svg)](https://david-dm.org/Narazaka/shiori_converter.js#info=devDependencies)
-[![Build Status](https://travis-ci.org/Narazaka/shiori_converter.js.svg)](https://travis-ci.org/Narazaka/shiori_converter.js)
+[![Travis Build Status](https://travis-ci.org/Narazaka/shiori_converter.js.svg)](https://travis-ci.org/Narazaka/shiori_converter.js)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/Narazaka/shiori_converter.js?svg=true)](https://ci.appveyor.com/project/Narazaka/shiori-converter-js)
 [![codecov.io](https://codecov.io/github/Narazaka/shiori_converter.js/coverage.svg?branch=master)](https://codecov.io/github/Narazaka/shiori_converter.js?branch=master)
 [![Code Climate](https://codeclimate.com/github/Narazaka/shiori_converter.js/badges/gpa.svg)](https://codeclimate.com/github/Narazaka/shiori_converter.js)
 
