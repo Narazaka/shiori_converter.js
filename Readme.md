@@ -4,8 +4,6 @@
 [![npm license](https://img.shields.io/npm/l/shiori_converter.svg)](https://www.npmjs.com/package/shiori_converter)
 [![npm download total](https://img.shields.io/npm/dt/shiori_converter.svg)](https://www.npmjs.com/package/shiori_converter)
 [![npm download by month](https://img.shields.io/npm/dm/shiori_converter.svg)](https://www.npmjs.com/package/shiori_converter)
-[![Bower](https://img.shields.io/bower/v/shiori_converter.svg)](https://github.com/Narazaka/shiori_converter.js)
-[![Bower](https://img.shields.io/bower/l/shiori_converter.svg)](https://github.com/Narazaka/shiori_converter.js)
 
 [![Dependency Status](https://david-dm.org/Narazaka/shiori_converter.js.svg)](https://david-dm.org/Narazaka/shiori_converter.js)
 [![devDependency Status](https://david-dm.org/Narazaka/shiori_converter.js/dev-status.svg)](https://david-dm.org/Narazaka/shiori_converter.js#info=devDependencies)
@@ -20,11 +18,6 @@ SHIORI Protocol version converter
 npm:
 ```
 npm install shiori_converter
-```
-
-bower:
-```
-bower install shiori_converter
 ```
 
 This module depends on [ShioriJK](https://github.com/Narazaka/shiorijk)
