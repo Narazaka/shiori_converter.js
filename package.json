@@ -9,6 +9,10 @@
   ],
   "main": "./dist/lib/shiori_converter.js",
   "types": "./dist/lib/shiori_converter.d.ts",
+  "files": [
+    "dist",
+    "web"
+  ],
   "scripts": {
     "dist": "npm run node && npm run web",
     "node": "rm -rf dist && cross-env NODE_ENV=production webpack",
