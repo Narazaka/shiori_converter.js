@@ -1,0 +1,12 @@
+parser: babel-eslint
+extends: narazaka
+env:
+  es6: true
+  node: true
+  mocha: true
+rules:
+  # for webpack
+  camelcase: 0
+  # for karma
+  no-process-env: 0
+  no-magic-numbers: 0
