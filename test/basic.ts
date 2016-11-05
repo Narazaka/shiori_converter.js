@@ -28,7 +28,7 @@ describe("ShioriConverter", () => {
       },
     });
     assert(
-      (<ShioriJK.Message.Request> ShioriConverter.request_to(request3, "2.6")).toString()
+      (<ShioriJK.Message.Request> ShioriConverter.requestTo(request3, "2.6")).toString()
       === request2.toString()
     );
     const response2 = new ShioriJK.Message.Response({
@@ -54,7 +54,7 @@ describe("ShioriConverter", () => {
       },
     });
     assert(
-      ShioriConverter.response_to(request3, response2, "3.0").toString()
+      ShioriConverter.responseTo(request3, response2, "3.0").toString()
       === response3.toString()
     );
   });

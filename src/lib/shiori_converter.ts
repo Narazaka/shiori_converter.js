@@ -10,29 +10,29 @@ export class ShioriConverter {
    * @param {string} version - protocol version
    * @return {ShioriJK.Message.Request} specified version request
    */
-  static request_to(request: ShioriJK.Message.Request, version: ShioriConverter.ShioriVersion) {
+  static requestTo(request: ShioriJK.Message.Request, version: ShioriConverter.ShioriVersion) {
     if (!request) throw new ShioriConverter.RequestNotSetError();
     if (request.request_line.version === "4.0") {
       if (version === "4.0") {
         return request;
       } else if (version === "3.0") {
-        return ShioriConverter.request_4to3(request);
+        return ShioriConverter.request4to3(request);
       } else {
-        return ShioriConverter.request_4to2(request);
+        return ShioriConverter.request4to2(request);
       }
     } else if (request.request_line.version === "3.0") {
       if (version === "4.0") {
-        return ShioriConverter.request_3to4(request);
+        return ShioriConverter.request3to4(request);
       } else if (version === "3.0") {
         return request;
       } else {
-        return ShioriConverter.request_3to2(request);
+        return ShioriConverter.request3to2(request);
       }
     } else {
       if (version === "4.0") {
-        return ShioriConverter.request_2to4(request);
+        return ShioriConverter.request2to4(request);
       } else if (version === "3.0") {
-        return ShioriConverter.request_2to3(request);
+        return ShioriConverter.request2to3(request);
       } else {
         return request;
       }
@@ -46,7 +46,7 @@ export class ShioriConverter {
    * @param {string} version - protocol version
    * @return {ShioriJK.Message.Response} specified version response
    */
-  static response_to(
+  static responseTo(
     request: ShioriJK.Message.Request, response: ShioriJK.Message.Response, version: ShioriConverter.ShioriVersion
   ) {
     if (!request) throw new ShioriConverter.RequestNotSetError();
@@ -55,23 +55,23 @@ export class ShioriConverter {
       if (version === "4.0") {
         return response;
       } else if (version === "3.0") {
-        return ShioriConverter.response_4to3(request, response);
+        return ShioriConverter.response4to3(request, response);
       } else {
-        return ShioriConverter.response_4to2(request, response);
+        return ShioriConverter.response4to2(request, response);
       }
     } else if (response.status_line.version === "3.0") {
       if (version === "4.0") {
-        return ShioriConverter.response_3to4(request, response);
+        return ShioriConverter.response3to4(request, response);
       } else if (version === "3.0") {
         return response;
       } else {
-        return ShioriConverter.response_3to2(request, response);
+        return ShioriConverter.response3to2(request, response);
       }
     } else {
       if (version === "4.0") {
-        return ShioriConverter.response_2to4(request, response);
+        return ShioriConverter.response2to4(request, response);
       } else if (version === "3.0") {
-        return ShioriConverter.response_2to3(request, response);
+        return ShioriConverter.response2to3(request, response);
       } else {
         return response;
       }
@@ -83,7 +83,7 @@ export class ShioriConverter {
    * @param {ShioriJK.Message.Request} request - request
    * @return {ShioriJK.Message.Request} SHIORI/3.x request
    */
-  static request_4to3(request: ShioriJK.Message.Request): ShioriJK.Message.Request {
+  static request4to3(request: ShioriJK.Message.Request): ShioriJK.Message.Request {
     throw new ShioriConverter.NotImplementedError();
   }
 
@@ -92,9 +92,9 @@ export class ShioriConverter {
    * @param {ShioriJK.Message.Request} request - request
    * @return {ShioriJK.Message.Request} SHIORI/2.x request
    */
-  static request_4to2(request: ShioriJK.Message.Request) {
-    return ShioriConverter.request_3to2(
-      ShioriConverter.request_4to3(request)
+  static request4to2(request: ShioriJK.Message.Request) {
+    return ShioriConverter.request3to2(
+      ShioriConverter.request4to3(request)
     );
   }
 
@@ -127,7 +127,7 @@ export class ShioriConverter {
    * @param {ShioriJK.Message.Request} request - request
    * @return {ShioriJK.Message.Request} SHIORI/2.x request
    */
-  static request_3to2(request: ShioriJK.Message.Request): ShioriJK.Message.Request | string | void {
+  static request3to2(request: ShioriJK.Message.Request): ShioriJK.Message.Request | string | void {
     /*
     SHIORI/2.x互換変換
     - GET : Sentence : OnCommunicate はGET Sentence SHIORI/2.3に変換され、ヘッダの位置が変更されます。
@@ -223,7 +223,7 @@ export class ShioriConverter {
    * @param {ShioriJK.Message.Request} request - request
    * @return {ShioriJK.Message.Request} SHIORI/3.x request
    */
-  static request_2to3(request: ShioriJK.Message.Request): ShioriJK.Message.Request {
+  static request2to3(request: ShioriJK.Message.Request): ShioriJK.Message.Request {
     throw new ShioriConverter.NotImplementedError();
   }
 
@@ -232,7 +232,7 @@ export class ShioriConverter {
    * @param {ShioriJK.Message.Request} request - request
    * @return {ShioriJK.Message.Request} SHIORI/4.x request
    */
-  static request_3to4(request: ShioriJK.Message.Request): ShioriJK.Message.Request {
+  static request3to4(request: ShioriJK.Message.Request): ShioriJK.Message.Request {
     throw new ShioriConverter.NotImplementedError();
   }
 
@@ -241,9 +241,9 @@ export class ShioriConverter {
    * @param {ShioriJK.Message.Request} request - request
    * @return {ShioriJK.Message.Request} SHIORI/4.x request
    */
-  static request_2to4(request: ShioriJK.Message.Request) {
-    return ShioriConverter.request_3to4(
-      ShioriConverter.request_2to3(request)
+  static request2to4(request: ShioriJK.Message.Request) {
+    return ShioriConverter.request3to4(
+      ShioriConverter.request2to3(request)
     );
   }
 
@@ -253,7 +253,7 @@ export class ShioriConverter {
    * @param {ShioriJK.Message.Response} response - response
    * @return {ShioriJK.Message.Response} SHIORI/3.x response
    */
-  static response_4to3(
+  static response4to3(
     request: ShioriJK.Message.Request, response: ShioriJK.Message.Response
   ): ShioriJK.Message.Response {
     throw new ShioriConverter.NotImplementedError();
@@ -265,10 +265,10 @@ export class ShioriConverter {
    * @param {ShioriJK.Message.Response} response - response
    * @return {ShioriJK.Message.Response} SHIORI/2.x response
    */
-  static response_4to2(request: ShioriJK.Message.Request, response: ShioriJK.Message.Response) {
-    return ShioriConverter.response_3to2(
+  static response4to2(request: ShioriJK.Message.Request, response: ShioriJK.Message.Response) {
+    return ShioriConverter.response3to2(
       request,
-      ShioriConverter.response_4to3(request, response)
+      ShioriConverter.response4to3(request, response)
     );
   }
 
@@ -278,7 +278,7 @@ export class ShioriConverter {
    * @param {ShioriJK.Message.Response} response - response
    * @return {ShioriJK.Message.Response} SHIORI/2.x response
    */
-  static response_3to2(
+  static response3to2(
     request: ShioriJK.Message.Request, response: ShioriJK.Message.Response
   ): ShioriJK.Message.Response {
     throw new ShioriConverter.NotImplementedError();
@@ -290,8 +290,8 @@ export class ShioriConverter {
    * @param {ShioriJK.Message.Response} response - response
    * @return {ShioriJK.Message.Response} SHIORI/3.x response
    */
-  static response_2to3(request: ShioriJK.Message.Request, response: ShioriJK.Message.Response) {
-    const convRequest = ShioriConverter.request_to(request, "2.6");
+  static response2to3(request: ShioriJK.Message.Request, response: ShioriJK.Message.Response) {
+    const convRequest = ShioriConverter.requestTo(request, "2.6");
     let valueHeaderName: ShioriConverter.Shiori2ValueHeader;
     if (convRequest instanceof ShioriJK.Message.Request) {
       switch (convRequest.request_line.method) {
@@ -345,7 +345,7 @@ export class ShioriConverter {
    * @param {ShioriJK.Message.Response} response - response
    * @return {ShioriJK.Message.Response} SHIORI/4.x response
    */
-  static response_3to4(
+  static response3to4(
     request: ShioriJK.Message.Request, response: ShioriJK.Message.Response
   ): ShioriJK.Message.Response {
     throw new ShioriConverter.NotImplementedError();
@@ -357,12 +357,12 @@ export class ShioriConverter {
    * @param {ShioriJK.Message.Response} response - response
    * @return {ShioriJK.Message.Response} SHIORI/4.x response
    */
-  static response_2to4(
+  static response2to4(
     request: ShioriJK.Message.Request, response: ShioriJK.Message.Response
   ): ShioriJK.Message.Response {
-    return ShioriConverter.response_3to4(
+    return ShioriConverter.response3to4(
       request,
-      ShioriConverter.response_2to3(request, response)
+      ShioriConverter.response2to3(request, response)
     );
   }
 }
