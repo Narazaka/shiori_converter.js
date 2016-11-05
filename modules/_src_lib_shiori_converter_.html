@@ -3,18 +3,18 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>API Document</title>
+	<title>&quot;src/lib/shiori_converter&quot; | API Document</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="assets/css/main.css">
-	<script src="assets/js/modernizr.js"></script>
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
 <header>
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -23,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">API Document</a>
+					<a href="../index.html" class="title">API Document</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -52,97 +52,58 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="globals.html">Globals</a>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="_src_lib_shiori_converter_.html">&quot;src/lib/shiori_converter&quot;</a>
 				</li>
 			</ul>
-			<h1> API Document</h1>
+			<h1>External module &quot;src/lib/shiori_converter&quot;</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<div class="tsd-panel tsd-typography">
-				<h1 id="-shiori_converter-js-https-github-com-narazaka-shiori_converter-js-"><a href="https://github.com/Narazaka/shiori_converter.js">shiori_converter.js</a></h1>
-				<p><a href="https://www.npmjs.com/package/shiori_converter"><img src="https://img.shields.io/npm/v/shiori_converter.svg" alt="npm"></a>
-					<a href="https://www.npmjs.com/package/shiori_converter"><img src="https://img.shields.io/npm/l/shiori_converter.svg" alt="npm license"></a>
-					<a href="https://www.npmjs.com/package/shiori_converter"><img src="https://img.shields.io/npm/dt/shiori_converter.svg" alt="npm download total"></a>
-				<a href="https://www.npmjs.com/package/shiori_converter"><img src="https://img.shields.io/npm/dm/shiori_converter.svg" alt="npm download by month"></a></p>
-				<p><a href="https://david-dm.org/Narazaka/shiori_converter.js"><img src="https://david-dm.org/Narazaka/shiori_converter.js.svg" alt="Dependency Status"></a>
-					<a href="https://david-dm.org/Narazaka/shiori_converter.js#info=devDependencies"><img src="https://david-dm.org/Narazaka/shiori_converter.js/dev-status.svg" alt="devDependency Status"></a>
-					<a href="https://travis-ci.org/Narazaka/shiori_converter.js"><img src="https://travis-ci.org/Narazaka/shiori_converter.js.svg" alt="Build Status"></a>
-					<a href="https://codecov.io/github/Narazaka/shiori_converter.js?branch=master"><img src="https://codecov.io/github/Narazaka/shiori_converter.js/coverage.svg?branch=master" alt="codecov.io"></a>
-				<a href="https://codeclimate.com/github/Narazaka/shiori_converter.js"><img src="https://codeclimate.com/github/Narazaka/shiori_converter.js/badges/gpa.svg" alt="Code Climate"></a></p>
-				<p>SHIORI Protocol version converter</p>
-				<h2 id="install">Install</h2>
-				<p>npm:</p>
-				<pre><code>npm <span class="hljs-keyword">install</span> shiori_converter
-</code></pre><p>This module depends on <a href="https://github.com/Narazaka/shiorijk">ShioriJK</a></p>
-				<h2 id="usage">Usage</h2>
-				<p>node.js:</p>
-				<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> shiori_converter = <span class="hljs-built_in">require</span>(<span class="hljs-string">'shiori_converter'</span>);
-<span class="hljs-keyword">var</span> ShioriConverter = shiori_converter.ShioriConverter;
-</code></pre>
-				<p>browser:</p>
-				<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"shiorijk.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"shiori_converter.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-</code></pre>
-				<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> request3 = <span class="hljs-keyword">new</span> ShioriJK.Message.Request({
-  <span class="hljs-attr">request_line</span>: {
-    <span class="hljs-attr">method</span>: <span class="hljs-string">'GET'</span>,
-    <span class="hljs-attr">version</span>: <span class="hljs-string">'3.0'</span>,
-  },
-  <span class="hljs-attr">headers</span>: {
-    <span class="hljs-attr">ID</span>: <span class="hljs-string">'OnBoot'</span>,
-    <span class="hljs-attr">Charset</span>: <span class="hljs-string">'UTF-8'</span>,
-    <span class="hljs-attr">Sender</span>: <span class="hljs-string">'Ikagaka'</span>,
-  },
-});
-<span class="hljs-keyword">var</span> request2 = ShioriConverter.request_to(request3, <span class="hljs-string">'2.6'</span>);
-<span class="hljs-built_in">console</span>.log(request2.toString());
-
-<span class="hljs-keyword">var</span> response2 = <span class="hljs-keyword">new</span> ShioriJK.Message.Response({
-  <span class="hljs-attr">status_line</span>: {
-    <span class="hljs-attr">code</span>: <span class="hljs-number">200</span>,
-    <span class="hljs-attr">version</span>: <span class="hljs-string">'2.6'</span>,
-  },
-  <span class="hljs-attr">headers</span>: {
-    <span class="hljs-attr">Sentence</span>: <span class="hljs-string">'\\h\\s[0]\\e'</span>,
-    <span class="hljs-attr">Charset</span>: <span class="hljs-string">'UTF-8'</span>,
-    <span class="hljs-attr">Sender</span>: <span class="hljs-string">'ikaga'</span>,
-  },
-});
-<span class="hljs-keyword">var</span> response3 = ShioriConverter.response_to(request3, response2, <span class="hljs-string">'3.0'</span>);
-<span class="hljs-built_in">console</span>.log(response3.toString());
-</code></pre>
-				<h2 id="api">API</h2>
-				<p><a href="https://narazaka.github.io/shiori_converter.js/index.html">API Document</a></p>
-				<h2 id="license">License</h2>
-				<p>This is released under <a href="http://narazaka.net/license/MIT?2015">MIT License</a>.</p>
-			</div>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Classes</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_src_lib_shiori_converter_.shioriconverter.html" class="tsd-kind-icon">Shiori<wbr>Converter</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
 					<li class="globals  ">
-						<a href="globals.html"><em>Globals</em></a>
+						<a href="../globals.html"><em>Globals</em></a>
 					</li>
 					<li class="label tsd-is-external">
 						<span>Internals</span>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_lib_shiori_converter_.html">"src/lib/shiori_<wbr>converter"</a>
+					<li class="current tsd-kind-external-module">
+						<a href="_src_lib_shiori_converter_.html">"src/lib/shiori_<wbr>converter"</a>
 					</li>
 					<li class="label tsd-is-external">
 						<span>Externals</span>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_node_modules_shiorijk_lib_shiorijk_d_.html">"node_<wbr>modules/shiorijk/lib/shiorijk.d"</a>
+						<a href="_node_modules_shiorijk_lib_shiorijk_d_.html">"node_<wbr>modules/shiorijk/lib/shiorijk.d"</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="../classes/_src_lib_shiori_converter_.shioriconverter.html" class="tsd-kind-icon">Shiori<wbr>Converter</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -211,7 +172,7 @@
 	<p>Generated using <a href="http://typedoc.io" target="_blank">TypeDoc</a></p>
 </div>
 <div class="overlay"></div>
-<script src="assets/js/main.js"></script>
-<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>
