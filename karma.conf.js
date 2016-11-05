@@ -1,50 +1,56 @@
+const webpackConfig = require("webpack-config-narazaka-ts-js").webTest;
+
 module.exports = (config) =>
   config.set({
-    basePath: '',
-    frameworks: ['detectBrowsers', 'mocha-debug', 'mocha'],
-    files: [
-      'mock/browser-global-vars.js',
-      'node_modules/power-assert/build/power-assert.js',
-      'node_modules/shiorijk/lib/*.js',
-      'src/**/*.js',
-      'test/**/*.js',
+    frameworks: ["detectBrowsers", "mocha"],
+    plugins:    [
+      "karma-mocha",
+      "karma-webpack",
+      "karma-mocha-own-reporter",
+      "karma-ie-launcher",
+      "karma-firefox-launcher",
+      "karma-chrome-launcher",
+      "karma-safari-launcher",
+      "karma-opera-launcher",
+      "karma-phantomjs-launcher",
+      "karma-detect-browsers",
+      "karma-coverage",
     ],
-    exclude: ['**/*.swp'],
+    files: [
+      "test/**/*.js",
+      "test/**/*.ts",
+    ],
+    exclude:       ["**/*.swp"],
     preprocessors: {
-      'src/**/*.js': ['babel', 'coverage'],
-      'test/**/*.js': ['babel'],
+      "test/**/*.js": ["webpack"],
+      "test/**/*.ts": ["webpack"],
     },
-    babelPreprocessor: {
-      options: {
-        presets: ['es2015'],
-        plugins: ['babel-plugin-espower'],
-        sourceMap: true,
-      },
-      filename: (file) => file.originalPath.replace(/\.js$/, '.es5.js'),
-      sourceFileName: (file) => file.originalPath,
-    },
+    webpack:          webpackConfig,
     coverageReporter: {
-      reporters: [{type: 'lcov'}],
-      instrumenters: {isparta: require('isparta')},
-      instrumenter: {
-        'src/**/*.js': 'isparta',
-      },
-      instrumenterOptions: {
-        isparta: {
-          babel: {
-            presets: ['es2015'],
-            plugins: ['babel-plugin-espower'],
-            sourceMap: true,
-          },
-        },
+      reporters: [
+        {type: "lcov"},
+        {type: "html"},
+        {type: "text"},
+      ],
+    },
+    reporters:      ["mocha-own", "coverage"],
+    detectBrowsers: {
+      postDetection(availableBrowsers) {
+        const result = availableBrowsers;
+        if (process.env.TRAVIS) {
+          const chromeIndex = availableBrowsers.indexOf("Chrome");
+          if (chromeIndex >= 0) {
+            result.splice(chromeIndex, 1);
+            result.push("ChromeTravisCI");
+          }
+        }
+        return result;
       },
     },
-    reporters: ['progress', 'coverage'],
-    port: 9876,
-    colors: true,
-    logLevel: config.LOG_INFO,
-    autoWatch: true,
-    browsers: [],
-    singleRun: false,
-    concurrency: Infinity,
+    customLaunchers: {
+      ChromeTravisCI: {
+        base:  "Chrome",
+        flags: ["--no-sandbox"],
+      },
+    },
   });

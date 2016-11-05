@@ -3,6 +3,13 @@
     "es2015"
   ],
   "plugins": [
-    "babel-plugin-espower"
-  ]
+    "transform-runtime"
+  ],
+  "env": {
+    "development": {
+      "presets": [
+        "power-assert"
+      ]
+    }
+  }
 }

@@ -4,7 +4,9 @@
   "dependencies": {
     "shiorijk": "^0.3.0"
   },
-  "main": ["./lib/shiori_converter.js"],
+  "main": [
+    "./lib/shiori_converter.js"
+  ],
   "ignore": [
     "**/.*",
     "bower_components",
