@@ -13,7 +13,7 @@
     "codecov": "gulp test-node && cat coverage/lcov.info | codecov"
   },
   "dependencies": {
-    "shiorijk": "^0.4.1"
+    "shiorijk": ">= 0.5 < 1.0"
   },
   "devDependencies": {
     "babel-eslint": "^5.0.0-beta6",
