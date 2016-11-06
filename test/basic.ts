@@ -331,6 +331,7 @@ const transactions: {
         headers: {
           Charset: "Shift_JIS",
           Sender:  "dummy-baseware",
+          ID:      "version",
         },
       }),
       response:  new ShioriJK.Message.Response({
@@ -341,7 +342,7 @@ const transactions: {
         headers: {
           Charset: "Shift_JIS",
           Sender:  "dummy-ghost",
-          Value:   "dummy-shiori",
+          Value:   "0.0.1",
         },
       }),
     },
@@ -490,6 +491,15 @@ describe("ShioriConverter", () => {
         if (!transaction.type && !transaction.cannot3to2) {
           const request = ShioriConverter.request3to2(<ShioriJK.Message.Request> transaction[3].request);
           assert.deepEqual(request, transaction[2].request);
+        }
+      }
+    });
+    it("can work with cannot convert events", () => {
+      for (const event of Object.keys(transactions)) {
+        const transaction = transactions[event];
+        if (transaction.cannot3to2) {
+          const request = ShioriConverter.request3to2(<ShioriJK.Message.Request> transaction[3].request);
+          assert(!request);
         }
       }
     });
