@@ -113,6 +113,8 @@ export class ShioriConverter {
       return "NOTIFY OwnerGhostName";
     } else if (id === "otherghostname") {
       return "NOTIFY OtherGhostName";
+    } else if (id === "OnTranslate") {
+      return "TRANSLATE Sentence";
     } else if (request.request_line.method === "NOTIFY") {
       return; // No SHIORI 2.x Event
     } else if (id.match(/^[a-z]/)) {
@@ -138,56 +140,38 @@ export class ShioriConverter {
       return; // No SHIORI 2.x Event
     }
     const id = request.headers.header["ID"];
-
+    const ignoreHeaders = ["ID"];
+    let referenceOffset = 0;
     const headers = new ShioriJK.Headers.Request();
     const convRequest = new ShioriJK.Message.Request({
       request_line: new ShioriJK.RequestLine({
         method: method,
         protocol: request.request_line.protocol,
-        version: "2.6",
+        version: method === "TEACH" ? "2.4" : "2.6",
       }),
-      headers: headers,
+      headers,
     });
 
-    if (method === "GET Version") {
-      // do nothing
-    } else if (method === "GET Sentence" && id != null) {
+    if (method === "GET Sentence" && id != null) {
       if (id === "OnCommunicate") { // SHIORI/2.3b
         headers.header["Sender"] = request.headers.header["Reference0"];
+        ignoreHeaders.push("Sender");
         headers.header["Sentence"] = request.headers.header["Reference1"];
         headers.header["Age"] = request.headers.header["Age"] || "0";
         // ref0,1のためにヘッダをずらす
-        for (const name of Object.keys(request.headers.header)) {
-          const value = request.headers.header[name];
-          const result = name.match(/^Reference(\d+)$/);
-          if (result) {
-            headers.header["Reference" + (Number(result[1]) - 2)] = "" + value;
-          } else {
-            headers.header[name] = "" + value;
-          }
-        }
-        return convRequest;
+        referenceOffset = -2;
       } else { // SHIORI/2.2
         headers.header["Event"] = id;
       }
     } else if (method === "GET String" && id != null) { // SHIORI/2.5
-      headers.header["ID"] = id;
+      ignoreHeaders.pop(); // headers.header["ID"] = id;
     } else if (method === "TEACH") { // SHIORI/2.4
       headers.header["Word"] = request.headers.header["Reference0"];
       // ref0のためにヘッダをずらす
-      for (const name of Object.keys(request.headers.header)) {
-        const value = request.headers.header[name];
-        const result = name.match(/^Reference(\d+)$/);
-        if (result) {
-          headers.header["Reference" + (Number(result[1]) - 1)] = "" + value;
-        } else {
-          headers.header[name] = "" + value;
-        }
-      }
-      return convRequest;
+      referenceOffset = -1;
     } else if (method === "NOTIFY OwnerGhostName") { // SHIORI/2.0 NOTIFY
       headers.header["Ghost"] = request.headers.header["Reference0"];
-      return convRequest;
+      ignoreHeaders.push("Reference0");
     } else if (method === "NOTIFY OtherGhostName") { // SHIORI/2.3 NOTIFY
       const ghosts: string[] = [];
       for (const name of Object.keys(request.headers.header)) {
@@ -201,19 +185,38 @@ export class ShioriConverter {
       const ghostsHeaders = ghosts
         .map((ghost) => `GhostEx: ${ghost}\r\n`)
         .join("");
+      delete headers.header["ID"];
       // ShioriJK.Headersが同一名複数ヘッダに対応していないため
       return convRequest.request_line
         + "\r\n"
-        + convRequest.headers
+        + headers
         + ghostsHeaders
         + "\r\n";
-    } else {
+    } else if (method === "TRANSLATE Sentence") { // SHIORI/2.6
+      headers.header["Sentence"] = request.headers.header["Reference0"];
+      // ref0のためにヘッダをずらす
+      referenceOffset = -1;
+    } else { // include GET Version
       return;
     }
-    for (const name in request.headers.header) {
-      if (name === "ID") continue;
-      const value = request.headers.header[name];
-      headers.header[name] = "" + value;
+    if (referenceOffset) {
+      for (const name in request.headers.header) {
+        if (ignoreHeaders.indexOf(name) !== -1) continue;
+        const value = request.headers.header[name];
+        const result = name.match(/^Reference(\d+)$/);
+        if (result) {
+          const index = Number(result[1]) + referenceOffset;
+          if (index >= 0) headers.header[`Reference${index}`] = "" + value;
+        } else {
+          headers.header[name] = "" + value;
+        }
+      }
+    } else {
+      for (const name in request.headers.header) {
+        if (ignoreHeaders.indexOf(name) !== -1) continue;
+        const value = request.headers.header[name];
+        headers.header[name] = "" + value;
+      }
     }
     return convRequest;
   }
