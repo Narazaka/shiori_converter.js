@@ -27,6 +27,7 @@
     "doc": "typedoc --mode modules --out doc --readme Readme.md --name \"API Document\" --disableOutputCheck --includeDeclarations --excludeNotExported src && cd doc && git status && cd .."
   },
   "dependencies": {
+    "babel-runtime": "^6.18.0",
     "shiorijk": ">= 0.5.3 < 1.0"
   },
   "devDependencies": {
