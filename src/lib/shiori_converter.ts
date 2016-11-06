@@ -325,10 +325,10 @@ export class ShioriConverter {
       // for Communicate
       const result = name.match(/^Reference(\d+)$/);
       if (result) {
-        headers.header[`Reference${result[1] + 1}`] = value;
+        headers.header[`Reference${Number(result[1]) + 1}`] = value;
       } else if (name === "To") {
         headers.header["Reference0"] = value;
-      } else if (name !== valueHeaderName) {
+      } else if (name !== valueHeaderName && name !== "Age") {
         headers.header[name] = value;
       }
     }

@@ -331,6 +331,7 @@ const transactions: {
         headers: {
           Charset: "Shift_JIS",
           Sender:  "dummy-baseware",
+          ID:      "version",
         },
       }),
       response:  new ShioriJK.Message.Response({
@@ -341,7 +342,7 @@ const transactions: {
         headers: {
           Charset: "Shift_JIS",
           Sender:  "dummy-ghost",
-          Value:   "dummy-shiori",
+          Value:   "0.0.1",
         },
       }),
     },
@@ -493,15 +494,33 @@ describe("ShioriConverter", () => {
         }
       }
     });
-  }); /*
+    it("can work with cannot convert events", () => {
+      for (const event of Object.keys(transactions)) {
+        const transaction = transactions[event];
+        if (transaction.cannot3to2) {
+          const request = ShioriConverter.request3to2(<ShioriJK.Message.Request> transaction[3].request);
+          assert(!request);
+        }
+      }
+    });
+  });
   describe("#response2to3", () => {
+    it("can work", () => {
+      for (const event of Object.keys(transactions)) {
+        const transaction = transactions[event];
+        if (!transaction.cannot2to3) {
+          const sourceRequest = typeof transaction[2].request === "string" ?
+            new ShioriJK.Shiori.Request.Parser().parse(<string> transaction[2].request) :
+            <ShioriJK.Message.Request> transaction[2].request;
+          const response = ShioriConverter.response2to3(
+            sourceRequest,
+            transaction[2].response
+          );
+          assert.deepEqual(response, transaction[3].response);
+        }
+      }
+    });
   });
-  describe("#requestTo", () => {
-
-  });
-  describe("#responseTo", () => {
-
-  });*/
   describe("#requestTo, #responseTo", () => {
     it("works", () => {
       const request3 = new ShioriJK.Message.Request({
