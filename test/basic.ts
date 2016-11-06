@@ -493,15 +493,24 @@ describe("ShioriConverter", () => {
         }
       }
     });
-  }); /*
+  });
   describe("#response2to3", () => {
+    it("can work", () => {
+      for (const event of Object.keys(transactions)) {
+        const transaction = transactions[event];
+        if (!transaction.cannot2to3) {
+          const sourceRequest = typeof transaction[2].request === "string" ?
+            new ShioriJK.Shiori.Request.Parser().parse(<string> transaction[2].request) :
+            <ShioriJK.Message.Request> transaction[2].request;
+          const response = ShioriConverter.response2to3(
+            sourceRequest,
+            transaction[2].response
+          );
+          assert.deepEqual(response, transaction[3].response);
+        }
+      }
+    });
   });
-  describe("#requestTo", () => {
-
-  });
-  describe("#responseTo", () => {
-
-  });*/
   describe("#requestTo, #responseTo", () => {
     it("works", () => {
       const request3 = new ShioriJK.Message.Request({
