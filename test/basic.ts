@@ -1,7 +1,7 @@
 /// <reference types="mocha" />
 import * as assert from "power-assert";
 import * as ShioriJK from "shiorijk";
-import {ShioriConverter} from "../src/lib/shiori_converter";
+import {ShioriConverter} from "../lib/shiori_converter";
 
 const transactions: {
   [event: string]: {
@@ -11,8 +11,8 @@ const transactions: {
     [version: number]: {
       request: ShioriJK.Message.Request | string,
       response: ShioriJK.Message.Response,
-    }
-  }
+    },
+  },
 } = {
   "GET Sentence": {
     3: {
@@ -453,7 +453,7 @@ describe("ShioriConverter", () => {
       for (const event of Object.keys(transactions)) {
         const transaction = transactions[event];
         if (transaction.type === "communicate") {
-          const request = ShioriConverter.request3to2(<ShioriJK.Message.Request> transaction[3].request);
+          const request = ShioriConverter.request3to2(transaction[3].request as ShioriJK.Message.Request);
           assert.deepEqual(request, transaction[2].request);
         }
       }
@@ -462,7 +462,7 @@ describe("ShioriConverter", () => {
       for (const event of Object.keys(transactions)) {
         const transaction = transactions[event];
         if (transaction.type === "teach") {
-          const request = ShioriConverter.request3to2(<ShioriJK.Message.Request> transaction[3].request);
+          const request = ShioriConverter.request3to2(transaction[3].request as ShioriJK.Message.Request);
           assert.deepEqual(request, transaction[2].request);
         }
       }
@@ -471,7 +471,7 @@ describe("ShioriConverter", () => {
       for (const event of Object.keys(transactions)) {
         const transaction = transactions[event];
         if (transaction.type === "translate") {
-          const request = ShioriConverter.request3to2(<ShioriJK.Message.Request> transaction[3].request);
+          const request = ShioriConverter.request3to2(transaction[3].request as ShioriJK.Message.Request);
           assert.deepEqual(request, transaction[2].request);
         }
       }
@@ -480,7 +480,7 @@ describe("ShioriConverter", () => {
       for (const event of Object.keys(transactions)) {
         const transaction = transactions[event];
         if (transaction.type === "otherghostname") {
-          const request = ShioriConverter.request3to2(<ShioriJK.Message.Request> transaction[3].request);
+          const request = ShioriConverter.request3to2(transaction[3].request as ShioriJK.Message.Request);
           assert(request === transaction[2].request);
         }
       }
@@ -489,7 +489,7 @@ describe("ShioriConverter", () => {
       for (const event of Object.keys(transactions)) {
         const transaction = transactions[event];
         if (!transaction.type && !transaction.cannot3to2) {
-          const request = ShioriConverter.request3to2(<ShioriJK.Message.Request> transaction[3].request);
+          const request = ShioriConverter.request3to2(transaction[3].request as ShioriJK.Message.Request);
           assert.deepEqual(request, transaction[2].request);
         }
       }
@@ -498,7 +498,7 @@ describe("ShioriConverter", () => {
       for (const event of Object.keys(transactions)) {
         const transaction = transactions[event];
         if (transaction.cannot3to2) {
-          const request = ShioriConverter.request3to2(<ShioriJK.Message.Request> transaction[3].request);
+          const request = ShioriConverter.request3to2(transaction[3].request as ShioriJK.Message.Request);
           assert(!request);
         }
       }
@@ -510,11 +510,11 @@ describe("ShioriConverter", () => {
         const transaction = transactions[event];
         if (!transaction.cannot2to3) {
           const sourceRequest = typeof transaction[2].request === "string" ?
-            new ShioriJK.Shiori.Request.Parser().parse(<string> transaction[2].request) :
-            <ShioriJK.Message.Request> transaction[2].request;
+            new ShioriJK.Shiori.Request.Parser().parse(transaction[2].request as string) :
+            transaction[2].request as ShioriJK.Message.Request;
           const response = ShioriConverter.response2to3(
             sourceRequest,
-            transaction[2].response
+            transaction[2].response,
           );
           assert.deepEqual(response, transaction[3].response);
         }

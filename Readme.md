@@ -1,18 +1,18 @@
 # [shiori_converter.js](https://github.com/Narazaka/shiori_converter.js)
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/Narazaka/shiori_converter.js.svg)](https://greenkeeper.io/)
-
 [![npm](https://img.shields.io/npm/v/shiori_converter.svg)](https://www.npmjs.com/package/shiori_converter)
 [![npm license](https://img.shields.io/npm/l/shiori_converter.svg)](https://www.npmjs.com/package/shiori_converter)
 [![npm download total](https://img.shields.io/npm/dt/shiori_converter.svg)](https://www.npmjs.com/package/shiori_converter)
 [![npm download by month](https://img.shields.io/npm/dm/shiori_converter.svg)](https://www.npmjs.com/package/shiori_converter)
 
-[![Dependency Status](https://david-dm.org/Narazaka/shiori_converter.js.svg)](https://david-dm.org/Narazaka/shiori_converter.js)
-[![devDependency Status](https://david-dm.org/Narazaka/shiori_converter.js/dev-status.svg)](https://david-dm.org/Narazaka/shiori_converter.js#info=devDependencies)
-[![Travis Build Status](https://travis-ci.org/Narazaka/shiori_converter.js.svg)](https://travis-ci.org/Narazaka/shiori_converter.js)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/Narazaka/shiori_converter.js?svg=true)](https://ci.appveyor.com/project/Narazaka/shiori-converter-js)
+[![Dependency Status](https://david-dm.org/Narazaka/shiori_converter.js/status.svg)](https://david-dm.org/Narazaka/shiori_converter.js)
+[![devDependency Status](https://david-dm.org/Narazaka/shiori_converter.js/dev-status.svg)](https://david-dm.org/Narazaka/shiori_converter.js?type=dev)
+[![Travis Build Status](https://travis-ci.org/Narazaka/shiori_converter.js.svg?branch=master)](https://travis-ci.org/Narazaka/shiori_converter.js)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/Narazaka/shiori_converter.js?svg=true&branch=master)](https://ci.appveyor.com/project/Narazaka/shiori-converter-js)
 [![codecov.io](https://codecov.io/github/Narazaka/shiori_converter.js/coverage.svg?branch=master)](https://codecov.io/github/Narazaka/shiori_converter.js?branch=master)
 [![Code Climate](https://codeclimate.com/github/Narazaka/shiori_converter.js/badges/gpa.svg)](https://codeclimate.com/github/Narazaka/shiori_converter.js)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3c3903c95a37410cbe9f84f3f482f764)](https://www.codacy.com/app/narazaka/shiori_converter-js?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Narazaka/shiori_converter.js&amp;utm_campaign=Badge_Grade)
+[![Greenkeeper badge](https://badges.greenkeeper.io/Narazaka/shiori_converter.js.svg)](https://greenkeeper.io/)
 
 SHIORI Protocol version converter
 
