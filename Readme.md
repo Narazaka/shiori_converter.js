@@ -1,5 +1,7 @@
 # [shiori_converter.js](https://github.com/Narazaka/shiori_converter.js)
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Narazaka/shiori_converter.js.svg)](https://greenkeeper.io/)
+
 [![npm](https://img.shields.io/npm/v/shiori_converter.svg)](https://www.npmjs.com/package/shiori_converter)
 [![npm license](https://img.shields.io/npm/l/shiori_converter.svg)](https://www.npmjs.com/package/shiori_converter)
 [![npm download total](https://img.shields.io/npm/dt/shiori_converter.svg)](https://www.npmjs.com/package/shiori_converter)
