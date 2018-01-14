@@ -117,7 +117,7 @@ export class ShioriConverter {
       return "TRANSLATE Sentence";
     } else if (request.request_line.method === "NOTIFY") {
       return; // No SHIORI 2.x Event
-    } else if (id.match(/^[a-z]/)) {
+    } else if (id && id.match(/^[a-z]/)) {
       return "GET String"; // default SHIORI/2.5
     } else {
       return "GET Sentence"; // default SHIORI/2.2
