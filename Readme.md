@@ -20,7 +20,7 @@ SHIORI Protocol version converter
 
 npm:
 ```
-npm install shiori_converter
+npm install shiorijk shiori_converter
 ```
 
 This module depends on [ShioriJK](https://github.com/Narazaka/shiorijk)
