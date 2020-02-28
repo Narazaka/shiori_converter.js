@@ -38,7 +38,7 @@
     "power-assert": "^1.4.4",
     "shiorijk": "^1.0.0",
     "shx": "^0.3.0",
-    "tslint": "^5.9.1",
+    "tslint": "^6.0.0",
     "typedoc": "^0.16.0",
     "typescript": "^3.7.2"
   },
