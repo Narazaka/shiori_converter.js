@@ -29,7 +29,7 @@
     "shiorijk": "^1.0.0"
   },
   "devDependencies": {
-    "@types/mocha": "^5.0.0",
+    "@types/mocha": "^7.0.2",
     "@types/power-assert": "^1.4.29",
     "cross-env": "^6.0.3",
     "espower-typescript": "^9.0.0",
