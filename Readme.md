@@ -10,9 +10,7 @@
 [![Travis Build Status](https://travis-ci.org/Narazaka/shiori_converter.js.svg?branch=master)](https://travis-ci.org/Narazaka/shiori_converter.js)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/Narazaka/shiori_converter.js?svg=true&branch=master)](https://ci.appveyor.com/project/Narazaka/shiori-converter-js)
 [![codecov.io](https://codecov.io/github/Narazaka/shiori_converter.js/coverage.svg?branch=master)](https://codecov.io/github/Narazaka/shiori_converter.js?branch=master)
-[![Code Climate](https://codeclimate.com/github/Narazaka/shiori_converter.js/badges/gpa.svg)](https://codeclimate.com/github/Narazaka/shiori_converter.js)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3c3903c95a37410cbe9f84f3f482f764)](https://www.codacy.com/app/narazaka/shiori_converter-js?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Narazaka/shiori_converter.js&amp;utm_campaign=Badge_Grade)
-[![Greenkeeper badge](https://badges.greenkeeper.io/Narazaka/shiori_converter.js.svg)](https://greenkeeper.io/)
 
 SHIORI Protocol version converter
 
