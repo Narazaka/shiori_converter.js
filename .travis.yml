@@ -3,6 +3,3 @@ node_js:
   - lts/*
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-cache:
-  directories:
-    - node_modules
