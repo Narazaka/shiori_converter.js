@@ -1,30 +1,30 @@
-/// <reference types="mocha" />
+// / <reference types="mocha" />
 import * as assert from "power-assert";
 import * as ShioriJK from "shiorijk";
-import {ShioriConverter} from "../lib/shiori_converter";
+import { ShioriConverter } from "../lib/shiori_converter";
 
 const transactions: {
   [event: string]: {
-    cannot3to2?: boolean,
-    cannot2to3?: boolean,
-    type?: "communicate" | "teach" | "translate" | "otherghostname",
+    cannot3to2?: boolean;
+    cannot2to3?: boolean;
+    type?: "communicate" | "teach" | "translate" | "otherghostname";
     [version: number]: {
-      request: ShioriJK.Message.Request | string,
-      response: ShioriJK.Message.Response,
-    },
-  },
+      request: ShioriJK.Message.Request | string;
+      response: ShioriJK.Message.Response;
+    };
+  };
 } = {
   "GET Sentence": {
     3: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "GET",
+          method: "GET",
           version: "3.0",
         },
         headers: {
-          Charset:    "Shift_JIS",
-          Sender:     "dummy-baseware",
-          ID:         "OnSecondChange",
+          Charset: "Shift_JIS",
+          Sender: "dummy-baseware",
+          ID: "OnSecondChange",
           Reference0: "1",
           Reference1: "0",
           Reference2: "0",
@@ -33,26 +33,26 @@ const transactions: {
       }),
       response: new ShioriJK.Message.Response({
         status_line: {
-          code:    200,
+          code: 200,
           version: "3.0",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-ghost",
-          Value:   "\\h\\s[0]\\e",
+          Sender: "dummy-ghost",
+          Value: "\\h\\s[0]\\e",
         },
       }),
     },
     2: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "GET Sentence",
+          method: "GET Sentence",
           version: "2.6",
         },
         headers: {
-          Charset:    "Shift_JIS",
-          Sender:     "dummy-baseware",
-          Event:      "OnSecondChange",
+          Charset: "Shift_JIS",
+          Sender: "dummy-baseware",
+          Event: "OnSecondChange",
           Reference0: "1",
           Reference1: "0",
           Reference2: "0",
@@ -61,29 +61,30 @@ const transactions: {
       }),
       response: new ShioriJK.Message.Response({
         status_line: {
-          code:    200,
+          code: 200,
           version: "2.6",
         },
         headers: {
-          Charset:  "Shift_JIS",
-          Sender:   "dummy-ghost",
+          Charset: "Shift_JIS",
+          Sender: "dummy-ghost",
           Sentence: "\\h\\s[0]\\e",
         },
       }),
     },
   },
-  "OnCommunicate": { // TODO
+  OnCommunicate: {
+    // TODO
     type: "communicate",
     3: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "GET",
+          method: "GET",
           version: "3.0",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-baseware",
-          ID:      "OnCommunicate",
+          Sender: "dummy-baseware",
+          ID: "OnCommunicate",
           Reference0: "other-ghost1",
           Reference1: "\\h\\s[0]hi\\e",
           Reference2: "ECHO/1.0",
@@ -92,13 +93,13 @@ const transactions: {
       }),
       response: new ShioriJK.Message.Response({
         status_line: {
-          code:    200,
+          code: 200,
           version: "3.0",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-ghost",
-          Value:   "\\h\\s[0]ho\\e",
+          Sender: "dummy-ghost",
+          Value: "\\h\\s[0]ho\\e",
           Reference0: "other-ghost",
           Reference1: "ECHO/1.0",
           Reference2: "\\h\\s[0]Sail on the night!\\e",
@@ -108,29 +109,29 @@ const transactions: {
     2: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "GET Sentence",
+          method: "GET Sentence",
           version: "2.6",
         },
         headers: {
-          Charset:    "Shift_JIS",
-          Sender:     "other-ghost1",
-          Sentence:   "\\h\\s[0]hi\\e",
-          Age:        "0",
+          Charset: "Shift_JIS",
+          Sender: "other-ghost1",
+          Sentence: "\\h\\s[0]hi\\e",
+          Age: "0",
           Reference0: "ECHO/1.0",
           Reference1: "\\h\\s[0]ho\\e",
         },
       }),
       response: new ShioriJK.Message.Response({
         status_line: {
-          code:    200,
+          code: 200,
           version: "2.6",
         },
         headers: {
-          Charset:    "Shift_JIS",
-          Sender:     "dummy-ghost",
-          Sentence:   "\\h\\s[0]ho\\e",
-          To:         "other-ghost",
-          Age:        "1",
+          Charset: "Shift_JIS",
+          Sender: "dummy-ghost",
+          Sentence: "\\h\\s[0]ho\\e",
+          To: "other-ghost",
+          Age: "1",
           Reference0: "ECHO/1.0",
           Reference1: "\\h\\s[0]Sail on the night!\\e",
         },
@@ -141,64 +142,64 @@ const transactions: {
     3: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "GET",
+          method: "GET",
           version: "3.0",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-baseware",
-          ID:      "username",
+          Sender: "dummy-baseware",
+          ID: "username",
         },
       }),
       response: new ShioriJK.Message.Response({
         status_line: {
-          code:    200,
+          code: 200,
           version: "3.0",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-ghost",
-          Value:   "master",
+          Sender: "dummy-ghost",
+          Value: "master",
         },
       }),
     },
     2: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "GET String",
+          method: "GET String",
           version: "2.6",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-baseware",
-          ID:      "username",
+          Sender: "dummy-baseware",
+          ID: "username",
         },
       }),
       response: new ShioriJK.Message.Response({
         status_line: {
-          code:    200,
+          code: 200,
           version: "2.6",
         },
         headers: {
-          Charset:  "Shift_JIS",
-          Sender:   "dummy-ghost",
-          String:   "master",
+          Charset: "Shift_JIS",
+          Sender: "dummy-ghost",
+          String: "master",
         },
       }),
     },
   },
-  "TEACH": {
+  TEACH: {
     type: "teach",
     3: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "GET",
+          method: "GET",
           version: "3.0",
         },
         headers: {
-          Charset:    "Shift_JIS",
-          Sender:     "dummy-baseware",
-          ID:         "OnTeach",
+          Charset: "Shift_JIS",
+          Sender: "dummy-baseware",
+          ID: "OnTeach",
           Reference0: "Ikagaka",
           Reference1: "baseware",
           Reference2: "JS",
@@ -206,38 +207,38 @@ const transactions: {
       }),
       response: new ShioriJK.Message.Response({
         status_line: {
-          code:    311,
+          code: 311,
           version: "3.0",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-ghost",
-          Value:   "\\h\\s[0]more info\\e",
+          Sender: "dummy-ghost",
+          Value: "\\h\\s[0]more info\\e",
         },
       }),
     },
     2: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "TEACH",
+          method: "TEACH",
           version: "2.4",
         },
         headers: {
-          Charset:    "Shift_JIS",
-          Sender:     "dummy-baseware",
-          Word:       "Ikagaka",
+          Charset: "Shift_JIS",
+          Sender: "dummy-baseware",
+          Word: "Ikagaka",
           Reference0: "baseware",
           Reference1: "JS",
         },
       }),
       response: new ShioriJK.Message.Response({
         status_line: {
-          code:    311,
+          code: 311,
           version: "2.4",
         },
         headers: {
-          Charset:  "Shift_JIS",
-          Sender:   "dummy-ghost",
+          Charset: "Shift_JIS",
+          Sender: "dummy-ghost",
           Sentence: "\\h\\s[0]more info\\e",
         },
       }),
@@ -248,48 +249,48 @@ const transactions: {
     3: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "GET",
+          method: "GET",
           version: "3.0",
         },
         headers: {
-          Charset:    "Shift_JIS",
-          Sender:     "dummy-baseware",
-          ID:         "OnTranslate",
+          Charset: "Shift_JIS",
+          Sender: "dummy-baseware",
+          ID: "OnTranslate",
           Reference0: "\\h\\s[0]hoge\\e",
         },
       }),
       response: new ShioriJK.Message.Response({
         status_line: {
-          code:    311,
+          code: 311,
           version: "3.0",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-ghost",
-          Value:   "\\h\\s[0]piyo\\e",
+          Sender: "dummy-ghost",
+          Value: "\\h\\s[0]piyo\\e",
         },
       }),
     },
     2: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "TRANSLATE Sentence",
+          method: "TRANSLATE Sentence",
           version: "2.6",
         },
         headers: {
-          Charset:  "Shift_JIS",
-          Sender:   "dummy-baseware",
+          Charset: "Shift_JIS",
+          Sender: "dummy-baseware",
           Sentence: "\\h\\s[0]hoge\\e",
         },
       }),
       response: new ShioriJK.Message.Response({
         status_line: {
-          code:    311,
+          code: 311,
           version: "2.6",
         },
         headers: {
-          Charset:  "Shift_JIS",
-          Sender:   "dummy-ghost",
+          Charset: "Shift_JIS",
+          Sender: "dummy-ghost",
           Sentence: "\\h\\s[0]piyo\\e",
         },
       }),
@@ -301,23 +302,23 @@ const transactions: {
     2: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "GET Version",
+          method: "GET Version",
           version: "2.6",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-baseware",
+          Sender: "dummy-baseware",
         },
       }),
-      response:  new ShioriJK.Message.Response({
+      response: new ShioriJK.Message.Response({
         status_line: {
-          code:    200,
+          code: 200,
           version: "2.6",
         },
         headers: {
-          Charset:  "Shift_JIS",
-          Sender:   "dummy-ghost",
-          ID:       "dummy-shiori",
+          Charset: "Shift_JIS",
+          Sender: "dummy-ghost",
+          ID: "dummy-shiori",
           Craftman: "dummy-author",
         },
       }),
@@ -325,24 +326,24 @@ const transactions: {
     3: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "GET",
+          method: "GET",
           version: "3.0",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-baseware",
-          ID:      "version",
+          Sender: "dummy-baseware",
+          ID: "version",
         },
       }),
-      response:  new ShioriJK.Message.Response({
+      response: new ShioriJK.Message.Response({
         status_line: {
-          code:    200,
+          code: 200,
           version: "3.0",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-ghost",
-          Value:   "0.0.1",
+          Sender: "dummy-ghost",
+          Value: "0.0.1",
         },
       }),
     },
@@ -351,47 +352,47 @@ const transactions: {
     2: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "NOTIFY OwnerGhostName",
+          method: "NOTIFY OwnerGhostName",
           version: "2.6",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-baseware",
-          Ghost:   "dummy-ghost",
+          Sender: "dummy-baseware",
+          Ghost: "dummy-ghost",
         },
       }),
-      response:  new ShioriJK.Message.Response({
+      response: new ShioriJK.Message.Response({
         status_line: {
-          code:    204,
+          code: 204,
           version: "2.6",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-ghost",
+          Sender: "dummy-ghost",
         },
       }),
     },
     3: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "NOTIFY",
-          version: "3.0",
-        },
-        headers: {
-          Charset:    "Shift_JIS",
-          Sender:     "dummy-baseware",
-          ID:         "ownerghostname",
-          Reference0: "dummy-ghost",
-        },
-      }),
-      response:  new ShioriJK.Message.Response({
-        status_line: {
-          code:    204,
+          method: "NOTIFY",
           version: "3.0",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-ghost",
+          Sender: "dummy-baseware",
+          ID: "ownerghostname",
+          Reference0: "dummy-ghost",
+        },
+      }),
+      response: new ShioriJK.Message.Response({
+        status_line: {
+          code: 204,
+          version: "3.0",
+        },
+        headers: {
+          Charset: "Shift_JIS",
+          Sender: "dummy-ghost",
         },
       }),
     },
@@ -406,41 +407,43 @@ const transactions: {
                 GhostEx: other-ghost2\x010\x0110
                 GhostEx: other-ghost3\x010\x0110
 
-      `.replace(/  +/g, "").replace(/\r\n|\n|\r/g, "\r\n"),
-      response:  new ShioriJK.Message.Response({
+      `
+        .replace(/  +/g, "")
+        .replace(/\r\n|\n|\r/g, "\r\n"),
+      response: new ShioriJK.Message.Response({
         status_line: {
-          code:    204,
+          code: 204,
           version: "2.6",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-ghost",
+          Sender: "dummy-ghost",
         },
       }),
     },
     3: {
       request: new ShioriJK.Message.Request({
         request_line: {
-          method:  "NOTIFY",
+          method: "NOTIFY",
           version: "3.0",
         },
         headers: {
-          Charset:    "Shift_JIS",
-          Sender:     "dummy-baseware",
-          ID:         "otherghostname",
+          Charset: "Shift_JIS",
+          Sender: "dummy-baseware",
+          ID: "otherghostname",
           Reference0: "other-ghost1\x010\x0110",
           Reference1: "other-ghost2\x010\x0110",
           Reference2: "other-ghost3\x010\x0110",
         },
       }),
-      response:  new ShioriJK.Message.Response({
+      response: new ShioriJK.Message.Response({
         status_line: {
-          code:    204,
+          code: 204,
           version: "3.0",
         },
         headers: {
           Charset: "Shift_JIS",
-          Sender:  "dummy-ghost",
+          Sender: "dummy-ghost",
         },
       }),
     },
@@ -509,13 +512,11 @@ describe("ShioriConverter", () => {
       for (const event of Object.keys(transactions)) {
         const transaction = transactions[event];
         if (!transaction.cannot2to3) {
-          const sourceRequest = typeof transaction[2].request === "string" ?
-            new ShioriJK.Shiori.Request.Parser().parse(transaction[2].request as string) :
-            transaction[2].request as ShioriJK.Message.Request;
-          const response = ShioriConverter.response2to3(
-            sourceRequest,
-            transaction[2].response,
-          );
+          const sourceRequest =
+            typeof transaction[2].request === "string"
+              ? new ShioriJK.Shiori.Request.Parser().parse(transaction[2].request as string)
+              : (transaction[2].request as ShioriJK.Message.Request);
+          const response = ShioriConverter.response2to3(sourceRequest, transaction[2].response);
           assert.deepEqual(response, transaction[3].response);
         }
       }
@@ -525,47 +526,47 @@ describe("ShioriConverter", () => {
     it("works", () => {
       const request3 = new ShioriJK.Message.Request({
         request_line: {
-          method:  "GET",
+          method: "GET",
           version: "3.0",
         },
         headers: {
-          ID:      "OnBoot",
+          ID: "OnBoot",
           Charset: "UTF-8",
-          Sender:  "Ikagaka",
+          Sender: "Ikagaka",
         },
       });
       const request2 = new ShioriJK.Message.Request({
         request_line: {
-          method:  "GET Sentence",
+          method: "GET Sentence",
           version: "2.6",
         },
         headers: {
-          Event:   "OnBoot",
+          Event: "OnBoot",
           Charset: "UTF-8",
-          Sender:  "Ikagaka",
+          Sender: "Ikagaka",
         },
       });
       assert.deepEqual(ShioriConverter.requestTo(request3, "2.6"), request2);
       const response2 = new ShioriJK.Message.Response({
         status_line: {
-          code:    200,
+          code: 200,
           version: "2.6",
         },
         headers: {
           Sentence: "\\h\\s[0]\\e",
-          Charset:  "UTF-8",
-          Sender:   "ikaga",
+          Charset: "UTF-8",
+          Sender: "ikaga",
         },
       });
       const response3 = new ShioriJK.Message.Response({
         status_line: {
-          code:    200,
+          code: 200,
           version: "3.0",
         },
         headers: {
-          Value:   "\\h\\s[0]\\e",
+          Value: "\\h\\s[0]\\e",
           Charset: "UTF-8",
-          Sender:  "ikaga",
+          Sender: "ikaga",
         },
       });
       assert.deepEqual(ShioriConverter.responseTo(request3, response2, "3.0"), response3);
